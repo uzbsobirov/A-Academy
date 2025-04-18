@@ -47,7 +47,7 @@ class Database:
         sql = """
         CREATE TABLE IF NOT EXISTS Users (
         id SERIAL PRIMARY KEY,
-        full_name VARCHAR(255) NOT NULL,
+        full_name VARCHAR(255) NULL,
         username varchar(255) NULL,
         user_id BIGINT NOT NULL UNIQUE
         );
@@ -80,7 +80,7 @@ class Database:
 
     async def select_one_user(self, user_id):
         sql = "SELECT * FROM Users WHERE user_id=$1"
-        return await self.execute(sql, user_id, execute=True)
+        return await self.execute(sql, user_id, fetchrow=True)
 
     async def update_user_name(self, full_name, user_id):
         sql = "UPDATE Users SET full_name=$1 WHERE user_id=$2"
