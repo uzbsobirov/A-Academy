@@ -1,15 +1,12 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-main = InlineKeyboardMarkup(
+back = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(
-                text="🔠 Testga qanday javob beriladi?",
-                callback_data="how_answer"
+                text="◀️ Orqaga",
+                callback_data="back"
         )
         ]
     ]
 )
-
-
-

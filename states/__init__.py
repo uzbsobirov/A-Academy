@@ -1,2 +1,2 @@
-from .test import Test, AdminState
-from .simple import GetName
+from .panel import Test, AdminState
+from .simple import GetName, HowAnswer

@@ -45,9 +45,7 @@ async def do_start(message: types.Message, state: FSMContext):
         await state.set_state(GetName.name)
     else:
         user_mention = f"<a href='tg://user?id={user_info['user_id']}'>{user_info[1]}</a>"
-        text = f"""<b>👤Hurmatli {user_mention}
-
-‼️Botning barcha imkoniyatlari bilan tanishish uchun pastdagi "botda test ishlash va yaratish(+video)" tugmasini bosing!</b>"""
+        text = f"""<b>👤Hurmatli {user_mention} botimizga xush kelibsiz</b>"""
         await message.answer(text=text, parse_mode=ParseMode.HTML, reply_markup=main)
         await state.clear()
 
@@ -63,9 +61,7 @@ async def get_name(message: types.Message, state: FSMContext):
         await db.update_user_name(full_name=name, user_id=user_id)
         user_info = await db.select_one_user(user_id)
         user_mention = f"<a href='tg://user?id={user_info['user_id']}'>{user_info[1]}</a>"
-        text = f"""<b>👤Hurmatli {user_mention}
-
-‼️Botning barcha imkoniyatlari bilan tanishish uchun pastdagi "botda test ishlash va yaratish(+video)" tugmasini bosing!</b>"""
+        text = f"""<b>👤Hurmatli {user_mention} botimizga xush kelibsiz</b>"""
         await message.answer(text=text, parse_mode=ParseMode.HTML, reply_markup=main)
         await state.clear()
     else:

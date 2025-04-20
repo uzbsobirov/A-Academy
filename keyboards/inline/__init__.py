@@ -1,3 +1,3 @@
-from . import buttons
-from . import channels
-from . import main_buttons
+from . import (
+backs, buttons, channels, main_buttons, panel
+)

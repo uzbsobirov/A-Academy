@@ -1,11 +1,16 @@
 import logging
 import asyncio
-from aiogram import Router, types
-from aiogram.filters import Command
+from aiogram import Router, types, F
+from aiogram.enums import ParseMode
+from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
+from datetime import date, datetime, timedelta
+
+from keyboards.inline.backs import back
+from keyboards.inline.panel import admin
 from loader import db, bot
 from keyboards.inline.buttons import are_you_sure_markup
-from states.test import AdminState
+from states.panel import AdminState
 from filters.admin import IsBotAdminFilter
 from data.config import ADMINS
 from utils.pgtoexcel import export_to_excel
@@ -63,3 +68,30 @@ async def clean_db(call: types.CallbackQuery, state: FSMContext):
         text = "Bekor qilindi."
     await bot.edit_message_text(text=text, chat_id=call.message.chat.id, message_id=msg_id)
     await state.clear()
+
+
+@router.message(Command('panel'), IsBotAdminFilter(ADMINS))
+async def admin_panel(message: types.Message, state: FSMContext):
+    text = "*Admin panelga xush kelibsiz*"
+
+    await message.answer(text=text, parse_mode=ParseMode.MARKDOWN_V2, reply_markup=admin)
+    await state.set_state(AdminState.main)
+
+
+@router.callback_query(StateFilter(AdminState.main), F.data == "statistic")
+async def statistics(call: types.CallbackQuery, state: FSMContext):
+    get_me = await bot.get_me()
+    bot_username = get_me.username
+
+    todays_date = date.today()
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+
+    all_users = await db.select_all_users()
+    text = "<b>📅 Bugungi sana: {}\n" \
+           "🕰 Hozirgi vaqt: {}\n\n" \
+           "📊 Bot obunachilari soni: {}\n\n" \
+           "⚡️ @{}</b>".format(todays_date, current_time, len(all_users), bot_username)
+
+    await call.message.edit_text(text=text, reply_markup=back)
+    await state.set_state(AdminState.statistic)
