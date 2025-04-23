@@ -24,6 +24,52 @@ admin = InlineKeyboardMarkup(
         ],
         [
             InlineKeyboardButton(
+                text="👥 Adminlar",
+                callback_data="admins_list"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="◀️ Orqaga",
+                callback_data="back"
+            )
+        ]
+    ]
+)
+
+
+required1 = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="➕ Kanal qo'shish",
+                callback_data="add_channel"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="◀️ Orqaga",
+                callback_data="back"
+            )
+        ]
+    ]
+)
+
+
+required2 = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="➕ Kanal qo'shish",
+                callback_data="add_channel"
+            ),
+            InlineKeyboardButton(
+                text="➖ Kanal o'chirish",
+                callback_data="delete_channel"
+            )
+        ],
+        [
+            InlineKeyboardButton(
                 text="◀️ Orqaga",
                 callback_data="back"
             )

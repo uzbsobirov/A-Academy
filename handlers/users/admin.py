@@ -28,13 +28,13 @@ async def get_all_users(message: types.Message):
     await message.answer_document(types.input_file.FSInputFile(file_path))
 
 
-@router.message(Command('reklama'), IsBotAdminFilter(ADMINS))
-async def ask_ad_content(message: types.Message, state: FSMContext):
-    await message.answer("Reklama uchun post yuboring")
+@router.callback_query(StateFilter(AdminState.main), F.data == "send_ads")
+async def ask_ad_content(call: types.CallbackQuery, state: FSMContext):
+    await call.message.edit_text("<b>Reklama uchun post yuboring</b>")
     await state.set_state(AdminState.ask_ad_content)
 
 
-@router.message(AdminState.ask_ad_content, IsBotAdminFilter(ADMINS))
+@router.message(AdminState.ask_ad_content)
 async def send_ad_to_users(message: types.Message, state: FSMContext):
     users = await db.select_all_users()
     count = 0
@@ -46,8 +46,9 @@ async def send_ad_to_users(message: types.Message, state: FSMContext):
             await asyncio.sleep(0.05)
         except Exception as error:
             logging.info(f"Ad did not send to user: {user_id}. Error: {error}")
-    await message.answer(text=f"Reklama {count} ta foydalauvchiga muvaffaqiyatli yuborildi.")
-    await state.clear()
+    await message.answer(text=f"<b>Reklama {count} ta foydalauvchiga muvaffaqiyatli yuborildi.</b>")
+    await message.answer(text="<b>Admin panel</b>", reply_markup=admin)
+    await state.set_state(AdminState.main)
 
 
 @router.message(Command('cleandb'), IsBotAdminFilter(ADMINS))

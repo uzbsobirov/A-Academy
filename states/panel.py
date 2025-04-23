@@ -11,3 +11,5 @@ class AdminState(StatesGroup):
     ask_ad_content = State()
     main = State()
     statistic = State()
+    sponsors = State()
+    get_channel = State()

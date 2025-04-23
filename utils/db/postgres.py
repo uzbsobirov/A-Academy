@@ -54,6 +54,18 @@ class Database:
         """
         await self.execute(sql, execute=True)
 
+    async def create_table_sponsors(self):
+        sql = """
+        CREATE TABLE IF NOT EXISTS Sponsors (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NULL,
+        username varchar(255) NULL,
+        chat_id BIGINT NOT NULL UNIQUE,
+        invite_link VARCHAR(255) NULL
+        );
+        """
+        await self.execute(sql, execute=True)
+
     @staticmethod
     def format_args(sql, parameters: dict):
         sql += " AND ".join(
@@ -67,6 +79,10 @@ class Database:
 
     async def select_all_users(self):
         sql = "SELECT * FROM Users"
+        return await self.execute(sql, fetch=True)
+
+    async def select_all_sponsors(self):
+        sql = "SELECT * FROM Sponsors"
         return await self.execute(sql, fetch=True)
 
     async def select_user(self, **kwargs):

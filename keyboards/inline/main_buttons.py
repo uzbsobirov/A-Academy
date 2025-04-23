@@ -7,6 +7,12 @@ main = InlineKeyboardMarkup(
                 text="🔠 Testga qanday javob beriladi?",
                 callback_data="how_answer"
         )
+        ],
+        [
+            InlineKeyboardButton(
+                text="📝 Test ishlash",
+                callback_data="testing"
+            )
         ]
     ]
 )
