@@ -1,14 +1,23 @@
 from aiogram import types, Router, F
+from aiogram.exceptions import TelegramForbiddenError
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
+from typing import Union
 
-from keyboards.inline.panel import required1, required2
+from asyncpg import UniqueViolationError
+
+from keyboards.inline.panel import required1, required2, admin
 from loader import db, bot
 from states.panel import AdminState
-from utils.misc.checking import check_is_admin
+# from utils.misc.checking import check_is_admin
 
 
 router = Router()
+
+
+async def check_is_admin(chat_id: Union[str, int]):
+    member = await bot.get_chat_administrators(chat_id=chat_id)
+    return member
 
 
 @router.callback_query(StateFilter(AdminState.main), F.data == "majburiy")
@@ -44,19 +53,49 @@ async def get_channel_info(message: types.Message, state: FSMContext):
     bot_username = data.username
 
     chat_id = message.forward_from_chat.id
-    channel_name = message.forward_from_chat.title
+    name = message.forward_from_chat.title
     username = message.forward_from_chat.username
 
-    get_channel_data = await bot.get_chat(chat_id=chat_id)
-
     try:
+        chat_link = await bot.export_chat_invite_link(chat_id=chat_id)
+
         checking = await check_is_admin(chat_id=chat_id)
         for item in checking:
             if item.user.username == bot_username and item.status == "administrator":
-                await message.answer(text="Majburiy obuna ro'yhatiga qo'shildi✅")
-    except (Unauthorized, BadRequest) as UB:
+                await db.add_sponsor(
+                    name=name,
+                    username=username,
+                    chat_id=chat_id,
+                    invite_link=chat_link
+                )
+                await message.answer(text="Majburiy obuna ro'yhatiga qo'shildi✅", reply_markup=admin)
+                await state.set_state(AdminState.main)
+    except TelegramForbiddenError as error:
+        print(error)
+        await message.answer(text="<b>Bot kanal yoki guruhda admin emas, iltimos oldin admin qilib "
+                                  "keyin qaytadan urinib ko'ring</b>")
 
-    print(chat_id, channel_name, username)
-    print(message)
+    except UniqueViolationError as UVE:
+        print(UVE)
+        await message.answer(text="<b>Bu kanal allaqachon majburiy obuna ro'yhatida mavjud</b>")
 
 
+# //////// DELETE THE REQUIRED CHANNEL ////////
+@router.callback_query(StateFilter(AdminState.sponsors), F.data == "delete_channel")
+async def delete_channel(call: types.CallbackQuery, state: FSMContext):
+    await call.message.edit_text(text="<b>Yaxshi, o'chirmoqchi bo'lgan kanalingiz 'id' sini yuboring</b>")
+    await state.set_state(AdminState.delete_sponsor)
+
+
+@router.message(StateFilter(AdminState.delete_sponsor))
+async def get_deleted_channel(message: types.Message, state: FSMContext):
+    id = message.text
+    try:
+        await db.delete_sponsor(id=int(id))
+        await message.answer(text="<b>Kanal majburiy obuna ro'yhatidan o'chirib tashlandi✅</b>", reply_markup=admin)
+        await state.set_state(AdminState.main)
+
+    except ValueError as VE:
+        print(VE)
+        await message.answer(text="<b>Iltimos, faqat sonlardan foydalaning!</b>")
+        await state.set_state(AdminState.delete_sponsor)

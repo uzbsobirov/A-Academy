@@ -77,6 +77,10 @@ class Database:
         sql = "INSERT INTO users (full_name, username, user_id) VALUES($1, $2, $3) returning *"
         return await self.execute(sql, full_name, username, user_id, fetchrow=True)
 
+    async def add_sponsor(self, name, username, chat_id, invite_link):
+        sql = "INSERT INTO Sponsors (name, username, chat_id, invite_link) VALUES($1, $2, $3, $4) returning *"
+        return await self.execute(sql, name, username, chat_id, invite_link, fetchrow=True)
+
     async def select_all_users(self):
         sql = "SELECT * FROM Users"
         return await self.execute(sql, fetch=True)
@@ -102,8 +106,9 @@ class Database:
         sql = "UPDATE Users SET full_name=$1 WHERE user_id=$2"
         return await self.execute(sql, full_name, user_id, execute=True)
 
-    async def delete_users(self):
-        await self.execute("DELETE FROM Users WHERE TRUE", execute=True)
+    async def delete_sponsor(self, id: int):
+        query = "DELETE FROM Sponsors WHERE id=$1"
+        await self.execute(query, id, execute=True)
 
     async def drop_users(self):
         await self.execute("DROP TABLE Users", execute=True)
