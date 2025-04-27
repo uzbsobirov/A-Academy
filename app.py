@@ -15,9 +15,11 @@ def setup_handlers(dispatcher: Dispatcher) -> None:
 def setup_middlewares(dispatcher: Dispatcher, bot: Bot) -> None:
     """MIDDLEWARE"""
     from middlewares.throttling import ThrottlingMiddleware
+    from middlewares.subscription import SubscriptionMiddleware
 
     # Spamdan himoya qilish uchun klassik ichki o'rta dastur. So'rovlar orasidagi asosiy vaqtlar 0,5 soniya
     dispatcher.message.middleware(ThrottlingMiddleware(slow_mode_delay=0.5))
+    dispatcher.message.middleware(SubscriptionMiddleware())
 
 
 def setup_filters(dispatcher: Dispatcher) -> None:
@@ -43,6 +45,7 @@ async def database_connected():
     # await db.drop_users()
     await db.create_table_users()
     await db.create_table_sponsors()
+    await db.create_table_admins()
 
 
 async def aiogram_on_startup_polling(dispatcher: Dispatcher, bot: Bot) -> None:

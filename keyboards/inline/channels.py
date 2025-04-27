@@ -9,7 +9,7 @@ def channels_func(lst, url):
             text=f"{number} - kanal",
             url=url[number - 1]
         )
-        channels.inline_keyboard.append(button)
+        channels.inline_keyboard.append([button])
 
     check_button = InlineKeyboardButton(
         text="✅ Tasdiqlash",

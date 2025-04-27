@@ -14,3 +14,6 @@ class AdminState(StatesGroup):
     sponsors = State()
     get_channel = State()
     delete_sponsor = State()
+    admins = State()
+    adding_admin = State()
+    delete_admin = State()

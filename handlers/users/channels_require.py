@@ -1,4 +1,5 @@
 from aiogram import types, Router, F
+from aiogram.enums import ParseMode
 from aiogram.exceptions import TelegramForbiddenError
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
@@ -6,6 +7,8 @@ from typing import Union
 
 from asyncpg import UniqueViolationError
 
+from keyboards.inline.channels import channels_func
+from keyboards.inline.main_buttons import main
 from keyboards.inline.panel import required1, required2, admin
 from loader import db, bot
 from states.panel import AdminState
@@ -34,7 +37,7 @@ async def settings_required(call: types.CallbackQuery, state: FSMContext):
         for item in all_channels:
             txt += f"{count}) <code>{item[0]}</code> | <a href='{item[4]}'>{item[1]}</a>\n"
             count += 1
-        txt += f"<b>Kanalni o'chirish uchun 'id' sini yuboring, Masalan: {all_channels[0][0]}</b>"
+        txt += f"<b>\nKanalni o'chirish uchun 'id' sini yuboring, Masalan: {all_channels[0][0]}</b>"
         await call.message.edit_text(text=txt, reply_markup=required2, disable_web_page_preview=True)
 
     await state.set_state(AdminState.sponsors)
@@ -99,3 +102,37 @@ async def get_deleted_channel(message: types.Message, state: FSMContext):
         print(VE)
         await message.answer(text="<b>Iltimos, faqat sonlardan foydalaning!</b>")
         await state.set_state(AdminState.delete_sponsor)
+
+
+# /////// CHECKING BUTTON //////
+@router.callback_query(F.data == "check_subs")
+async def check_subscription_status(call: types.CallbackQuery, state: FSMContext):
+    user_id = call.from_user.id
+
+    # 🔁 Fetch channels from DB
+    db_channels = await db.select_all_sponsors()
+
+    unsubscribed_channels = []
+    unsubscribed_urls = []
+
+    for row in db_channels:
+        channel_id = row["chat_id"]
+        member = await call.bot.get_chat_member(channel_id, user_id)
+
+        if member.status == "left":
+            chat = await call.bot.get_chat(channel_id)
+            unsubscribed_channels.append(channel_id)
+            unsubscribed_urls.append(chat.invite_link)
+
+    if unsubscribed_channels:
+        text = "<b>❌ Siz hali quyidagi kanallarga a'zo bo'lmagansiz:</b>"
+        await call.message.edit_text(
+            text=text,
+            reply_markup=channels_func(len(unsubscribed_channels), url=unsubscribed_urls)
+        )
+    else:
+        await call.message.edit_text(
+            "<b>✅ Siz barcha kanallarga a'zo bo'lgansiz. Botdan foydalanishingiz mumkin!</b>",
+            reply_markup=main
+        )
+        await state.clear()

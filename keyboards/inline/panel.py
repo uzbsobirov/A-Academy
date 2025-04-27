@@ -76,3 +76,25 @@ required2 = InlineKeyboardMarkup(
         ]
     ]
 )
+
+
+settings_admins = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="➕ Admin qo'shish",
+                callback_data="add_admin"
+            ),
+            InlineKeyboardButton(
+                text="➖ Adminlikdan olish",
+                callback_data="delete_admin"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="◀️ Orqaga",
+                callback_data="back"
+            )
+        ]
+    ]
+)
