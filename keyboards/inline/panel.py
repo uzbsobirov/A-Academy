@@ -98,3 +98,36 @@ settings_admins = InlineKeyboardMarkup(
         ]
     ]
 )
+
+
+test_buttons = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="📈 Test bali",
+                callback_data="test_ball"
+            ),
+            InlineKeyboardButton(
+                text="✅ To'g'ri javoblar soni",
+                callback_data="real_answers_number"
+
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="✅ To'g'ri javoblarni ko'rsatish",
+                callback_data="real_answer_show"
+            ),
+            InlineKeyboardButton(
+                text="✅ Xato javoblarni ko'rsatish",
+                callback_data="wrong_answer_show"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="◀️ Orqaga",
+                callback_data="back"
+            )
+        ]
+    ]
+)

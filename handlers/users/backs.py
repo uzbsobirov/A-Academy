@@ -52,3 +52,21 @@ async def back_to_panel(call: types.CallbackQuery, state: FSMContext):
 
     await call.message.edit_text(text=text, parse_mode=ParseMode.MARKDOWN_V2, reply_markup=admin)
     await state.set_state(AdminState.main)
+
+
+# ////// FROM TEST SETTINGS TO ADMIN MENU //////
+@router.callback_query(StateFilter(AdminState.test_set), F.data == "back")
+async def back_to_panel(call: types.CallbackQuery, state: FSMContext):
+    text = "*Admin panelga xush kelibsiz*"
+
+    await call.message.edit_text(text=text, parse_mode=ParseMode.MARKDOWN_V2, reply_markup=admin)
+    await state.set_state(AdminState.main)
+
+
+# ////// FROM ADMINS MENU TO ADMIN MENU //////
+@router.callback_query(StateFilter(AdminState.admins), F.data == "back")
+async def back_to_panel(call: types.CallbackQuery, state: FSMContext):
+    text = "*Admin panelga xush kelibsiz*"
+
+    await call.message.edit_text(text=text, parse_mode=ParseMode.MARKDOWN_V2, reply_markup=admin)
+    await state.set_state(AdminState.main)
