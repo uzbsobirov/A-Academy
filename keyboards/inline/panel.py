@@ -100,7 +100,7 @@ settings_admins = InlineKeyboardMarkup(
 )
 
 
-test_buttons = InlineKeyboardMarkup(
+test_buttons1 = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(
@@ -131,3 +131,36 @@ test_buttons = InlineKeyboardMarkup(
         ]
     ]
 )
+
+
+def test_buttons(real_answer, num_answers, wrong_answers):
+    buttons = InlineKeyboardMarkup(inline_keyboard=[])
+
+    if real_answer == 'on':
+        button = InlineKeyboardButton(
+            text="❌ To'g'ri javoblar soni",
+            callback_data="real_answers_number"
+        )
+
+        button1 = InlineKeyboardButton(
+
+        )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -77,6 +77,39 @@ class Database:
         """
         await self.execute(sql, execute=True)
 
+    async def create_table_participants(self):
+        sql = """
+        CREATE TABLE IF NOT EXISTS Participants (
+        id SERIAL PRIMARY KEY,
+        code BIGINT NOT NULL,
+        user_id BIGINT NOT NULL
+        );
+        """
+        await self.execute(sql, execute=True)
+
+    async def create_table_test(self):
+        sql = """
+        CREATE TABLE IF NOT EXISTS Test (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        code BIGINT NOT NULL UNIQUE,
+        answers varchar(255) NOT NULL
+        );
+        """
+        await self.execute(sql, execute=True)
+
+    async def create_table_settings(self):
+        sql = """
+        CREATE TABLE IF NOT EXISTS Settings (
+        id SERIAL PRIMARY KEY,
+        ball BIGINT NOT NULL,
+        real_answers varchar(10) NOT NULL,
+        num_answers varchar(10) NOT NULL,
+        wrong_answers varchar(10) NOT NULL
+        );
+        """
+        await self.execute(sql, execute=True)
+
     @staticmethod
     def format_args(sql, parameters: dict):
         sql += " AND ".join(
@@ -92,12 +125,20 @@ class Database:
         sql = "INSERT INTO Sponsors (name, username, chat_id, invite_link) VALUES($1, $2, $3, $4) returning *"
         return await self.execute(sql, name, username, chat_id, invite_link, fetchrow=True)
 
+    async def add_settings(self, ball, real_answers, num_answers, wrong_answers):
+        sql = "INSERT INTO Settings (ball, real_answers, num_answers, wrong_answers) VALUES($1, $2, $3, $4) returning *"
+        return await self.execute(sql, ball, real_answers, num_answers, wrong_answers, fetchrow=True)
+
     async def add_admin(self, name, username, user_id):
         sql = "INSERT INTO Admins (name, username, user_id) VALUES($1, $2, $3) returning *"
         return await self.execute(sql, name, username, user_id, fetchrow=True)
 
     async def select_all_users(self):
         sql = "SELECT * FROM Users"
+        return await self.execute(sql, fetch=True)
+
+    async def select_all_settings(self):
+        sql = "SELECT * FROM Settings"
         return await self.execute(sql, fetch=True)
 
     async def select_all_sponsors(self):
@@ -124,6 +165,14 @@ class Database:
     async def update_user_name(self, full_name, user_id):
         sql = "UPDATE Users SET full_name=$1 WHERE user_id=$2"
         return await self.execute(sql, full_name, user_id, execute=True)
+
+    async def update_settings(self, ball, id):
+        sql = "UPDATE Settings SET ball=$1 WHERE id=$2"
+        return await self.execute(sql, ball, id, execute=True)
+
+    async def update_settings_answer_num(self, num_answers, id):
+        sql = "UPDATE Settings SET num_answers=$1 WHERE id=$2"
+        return await self.execute(sql, num_answers, id, execute=True)
 
     async def delete_sponsor(self, id: int):
         query = "DELETE FROM Sponsors WHERE id=$1"

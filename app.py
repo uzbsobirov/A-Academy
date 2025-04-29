@@ -46,6 +46,9 @@ async def database_connected():
     await db.create_table_users()
     await db.create_table_sponsors()
     await db.create_table_admins()
+    await db.create_table_test()
+    await db.create_table_participants()
+    await db.create_table_settings()
 
 
 async def aiogram_on_startup_polling(dispatcher: Dispatcher, bot: Bot) -> None:

@@ -18,6 +18,7 @@ async def do_start(message: types.Message, state: FSMContext):
     full_name = message.from_user.full_name
     username = message.from_user.username
     user_mention = f"[{make_title(full_name)}](tg://user?id={user_id})"
+
     user = None
     try:
         user = await db.add_user(user_id=user_id, full_name=None, username=username)
