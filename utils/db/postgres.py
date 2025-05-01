@@ -170,9 +170,9 @@ class Database:
         sql = "UPDATE Settings SET ball=$1 WHERE id=$2"
         return await self.execute(sql, ball, id, execute=True)
 
-    async def update_settings_answer_num(self, num_answers, id):
-        sql = "UPDATE Settings SET num_answers=$1 WHERE id=$2"
-        return await self.execute(sql, num_answers, id, execute=True)
+    async def update_settings_answer_num(self, id, new_value, column_name):
+        sql = f"UPDATE Settings SET {column_name}=$1 WHERE id=$2"
+        return await self.execute(sql, new_value, id, execute=True)
 
     async def delete_sponsor(self, id: int):
         query = "DELETE FROM Sponsors WHERE id=$1"

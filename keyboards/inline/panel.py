@@ -133,18 +133,36 @@ test_buttons1 = InlineKeyboardMarkup(
 )
 
 
-def test_buttons(real_answer, num_answers, wrong_answers):
-    buttons = InlineKeyboardMarkup(inline_keyboard=[])
-
-    if real_answer == 'on':
-        button = InlineKeyboardButton(
-            text="❌ To'g'ri javoblar soni",
-            callback_data="real_answers_number"
-        )
-
-        button1 = InlineKeyboardButton(
-
-        )
+def test_buttons(settings):
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text=f"📈 Test bali",
+                callback_data=f"test_ball"
+            ),
+            InlineKeyboardButton(
+                text=f"✅ To'g'ri javoblar soni" if settings[0]['num_answers'] == 'on' else "❌ To'g'ri javoblar soni",
+                callback_data=f"toggle:num_answers:{settings[0]['num_answers']}"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text=f"✅ To'g'ri javoblarni ko'rsatish" if settings[0]['real_answers'] == 'on' else "❌ To'g'ri javoblarni ko'rsatish",
+                callback_data=f"toggle:real_answers:{settings[0]['real_answers']}"
+            ),
+            InlineKeyboardButton(
+                text=f"✅ Xato javoblarni ko'rsatish" if settings[0]['wrong_answers'] == 'on' else "❌ Xato javoblarni ko'rsatish",
+                callback_data=f"toggle:wrong_answers:{settings[0]['wrong_answers']}"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="◀️ Orqaga",
+                callback_data="back"
+            )
+        ]
+    ])
+    return keyboard
 
 
 

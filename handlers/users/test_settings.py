@@ -3,7 +3,7 @@ from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.enums.parse_mode import ParseMode
 
-from keyboards.inline.panel import test_buttons
+from keyboards.inline.panel import test_buttons, test_buttons1
 from loader import db
 from states.panel import AdminState
 
@@ -28,7 +28,8 @@ async def settings_test(call: types.CallbackQuery, state: FSMContext):
 ✅Katta\(A\) va kichik\(a\) harflar bir xil hisoblanadi\.
 
 🗄Test natijalari 30 kun saqlanadi\!*"""
-    await call.message.edit_text(text=text, parse_mode=ParseMode.MARKDOWN_V2, reply_markup=test_buttons)
+    await call.message.delete()
+    await call.message.answer(text=text, parse_mode=ParseMode.MARKDOWN_V2, reply_markup=test_buttons(all_settings))
     await state.set_state(AdminState.test_set)
 
 
@@ -43,6 +44,8 @@ async def test_balls(call: types.CallbackQuery, state: FSMContext):
 
 @router.message(StateFilter(AdminState.ball))
 async def get_bal(message: types.Message, state: FSMContext):
+    all_settings = await db.select_all_settings()
+
     ball = message.text
 
     if ball.isdigit():
@@ -58,7 +61,8 @@ async def get_bal(message: types.Message, state: FSMContext):
 ✅Katta\(A\) va kichik\(a\) harflar bir xil hisoblanadi\.
 
 🗄Test natijalari 30 kun saqlanadi\!*"""
-        await message.answer(text=text, parse_mode=ParseMode.MARKDOWN_V2, reply_markup=test_buttons)
+        # await message.delete()
+        await message.answer(text=text, parse_mode=ParseMode.MARKDOWN_V2, reply_markup=test_buttons(all_settings))
         await state.set_state(AdminState.test_set)
 
     else:
@@ -67,16 +71,35 @@ async def get_bal(message: types.Message, state: FSMContext):
 
 
 # ///// RIGHT ANSWERS NUMBER /////
-@router.callback_query(StateFilter(AdminState.test_set), F.data == "real_answers_number")
+@router.callback_query(StateFilter(AdminState.test_set), F.data.startswith("toggle:"))
 async def right_answers(call: types.CallbackQuery, state: FSMContext):
     all_settings = await db.select_all_settings()
-    right_answers_number = all_settings[0]['num_answers']
 
-    if right_answers_number == 'on':
-        await db.update_settings_answer_num(num_answers='off', id=1)
+    _, setting_name, current_value = call.data.split(":")
+    id = all_settings[0]['id']
 
-    else:
-        await db.update_settings_answer_num(num_answers='on', id=1)
+    # Toggle value
+    new_value = "off" if current_value == "on" else "on"
+
+    # Update DB
+    if new_value:
+        await db.update_settings_answer_num(id=id, new_value=new_value, column_name=setting_name)
+
+    get_new = await db.select_all_settings()
+
+    await call.message.delete()
+    text = """*✅Test nomini kiritib \+ \(plus\) belgisini qo'yasiz\. Va barcha kalitni kiritasiz\.
+
+✍️Misol uchun\:
+> Matematika\+abcdab\.\.\. yoki 
+> Matematika\+a\,b\,c\,d\,a\,b\.\.\.
+⁉️Testga faqat bir marta javob berish mumkin\.
+
+✅Katta\(A\) va kichik\(a\) harflar bir xil hisoblanadi\.
+
+🗄Test natijalari 30 kun saqlanadi\!*"""
+    await call.message.answer(text=text, parse_mode=ParseMode.MARKDOWN_V2, reply_markup=test_buttons(get_new))
+
 
 
 
