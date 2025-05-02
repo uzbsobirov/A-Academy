@@ -90,9 +90,8 @@ class Database:
     async def create_table_test(self):
         sql = """
         CREATE TABLE IF NOT EXISTS Test (
-        id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
-        code BIGINT NOT NULL UNIQUE,
+        code SERIAL UNIQUE PRIMARY KEY,
         answers varchar(255) NOT NULL
         );
         """
@@ -133,6 +132,10 @@ class Database:
         sql = "INSERT INTO Admins (name, username, user_id) VALUES($1, $2, $3) returning *"
         return await self.execute(sql, name, username, user_id, fetchrow=True)
 
+    async def add_test(self, name, answers):
+        sql = "INSERT INTO test (name, answers) VALUES($1, $2) returning *"
+        return await self.execute(sql, name, answers, fetchrow=True)
+
     async def select_all_users(self):
         sql = "SELECT * FROM Users"
         return await self.execute(sql, fetch=True)
@@ -161,6 +164,10 @@ class Database:
     async def select_one_user(self, user_id):
         sql = "SELECT * FROM Users WHERE user_id=$1"
         return await self.execute(sql, user_id, fetchrow=True)
+
+    async def select_test(self, code):
+        sql = "SELECT * FROM Users WHERE user_id=$1"
+        return await self.execute(sql, code, fetchrow=True)
 
     async def update_user_name(self, full_name, user_id):
         sql = "UPDATE Users SET full_name=$1 WHERE user_id=$2"

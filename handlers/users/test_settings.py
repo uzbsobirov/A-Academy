@@ -1,9 +1,10 @@
+import re
 from aiogram import types, Router, F
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.enums.parse_mode import ParseMode
 
-from keyboards.inline.panel import test_buttons, test_buttons1
+from keyboards.inline.panel import test_buttons
 from loader import db
 from states.panel import AdminState
 
@@ -99,6 +100,18 @@ async def right_answers(call: types.CallbackQuery, state: FSMContext):
 
 🗄Test natijalari 30 kun saqlanadi\!*"""
     await call.message.answer(text=text, parse_mode=ParseMode.MARKDOWN_V2, reply_markup=test_buttons(get_new))
+    await state.set_state(AdminState.get_code)
+
+
+@router.message()
+async def get_test_code(message: types.Message, state: FSMContext):
+    text = message.text.strip()
+    name, answers = message.text.split('*')
+
+    if re.match(r"^[a-zA-Z]", text):
+        correct_answers = [a.strip().lower() for a in text.split(',') if a.strip()]
+        await db.add_test(name=name, answers=answers)
+        await message.answer(f"✅ Yangi test yaratildi: Nomi {name}")
 
 
 

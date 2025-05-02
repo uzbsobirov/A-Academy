@@ -18,4 +18,5 @@ class AdminState(StatesGroup):
     adding_admin = State()
     delete_admin = State()
     test_set = State()
+    get_code = State()
     ball = State()
