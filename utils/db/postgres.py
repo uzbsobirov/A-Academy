@@ -136,6 +136,10 @@ class Database:
         sql = "INSERT INTO test (name, answers) VALUES($1, $2) returning *"
         return await self.execute(sql, name, answers, fetchrow=True)
 
+    async def add_participants(self, code, user_id):
+        sql = "INSERT INTO Participants (code, user_id) VALUES($1, $2) returning *"
+        return await self.execute(sql, code, user_id, fetchrow=True)
+
     async def select_all_users(self):
         sql = "SELECT * FROM Users"
         return await self.execute(sql, fetch=True)
@@ -165,9 +169,17 @@ class Database:
         sql = "SELECT * FROM Users WHERE user_id=$1"
         return await self.execute(sql, user_id, fetchrow=True)
 
+    async def select_participants(self, code, user_id):
+        sql = "SELECT * FROM Participants WHERE code=$1 and user_id=$2"
+        return await self.execute(sql, code, user_id, fetchrow=True)
+
     async def select_test(self, code):
-        sql = "SELECT * FROM Users WHERE user_id=$1"
-        return await self.execute(sql, code, fetchrow=True)
+        sql = "SELECT * FROM Test WHERE code=$1"
+        return await self.execute(sql, code, fetchval=True)
+
+    async def select_answers(self, code):
+        sql = "SELECT answers FROM Test WHERE code=$1"
+        return await self.execute(sql, code, fetchval=True)
 
     async def update_user_name(self, full_name, user_id):
         sql = "UPDATE Users SET full_name=$1 WHERE user_id=$2"
