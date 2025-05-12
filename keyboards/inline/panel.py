@@ -157,6 +157,12 @@ def test_buttons(settings):
         ],
         [
             InlineKeyboardButton(
+                text=f"⛔️ Testni tugatish",
+                callback_data=f"cancel_test"
+            )
+        ],
+        [
+            InlineKeyboardButton(
                 text="◀️ Orqaga",
                 callback_data="back"
             )

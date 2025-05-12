@@ -21,3 +21,4 @@ class AdminState(StatesGroup):
     get_code = State()
     ball = State()
     get_answers = State()
+    cancel = State()

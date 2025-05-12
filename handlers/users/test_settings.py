@@ -103,15 +103,16 @@ async def right_answers(call: types.CallbackQuery, state: FSMContext):
     await state.set_state(AdminState.get_code)
 
 
-@router.message()
+@router.message(StateFilter(AdminState.test_set))
 async def get_test_code(message: types.Message, state: FSMContext):
+    # if len(message.text) >= 4:
     text = message.text.strip()
-    name, answers = message.text.split('*')
+    name, answers = message.text.split('+')
 
     if re.match(r"^[a-zA-Z]", text):
-        correct_answers = [a.strip().lower() for a in text.split(',') if a.strip()]
         await db.add_test(name=name, answers=answers)
-        await message.answer(f"✅ Yangi test yaratildi: Nomi {name}")
+        select_test_id = await db.select_tests()
+        await message.answer(f"✅ Yangi test yaratildi: Nomi {name}\n\nTest kodi: {select_test_id[-1]['code']}")
 
 
 

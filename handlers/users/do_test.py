@@ -4,6 +4,7 @@ from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from fractions import Fraction
 
+from handlers.users.generate_scores import send_detailed_result
 from loader import db
 from states.panel import AdminState
 from utils.extra_datas import make_title
@@ -24,6 +25,7 @@ def normalize_answer(ans: str) -> str:
 @router.message(F.text.regexp(r"^\d+\*"))
 async def handle_test_submission(message: types.Message, state: FSMContext):
     text = message.text.strip()
+    select_settings = await db.select_all_settings()
 
     if '*' not in text:
         await message.answer("❌ Xabar formati noto'g'ri. Masalan: 44*a,b,c")
@@ -66,32 +68,7 @@ async def handle_test_submission(message: types.Message, state: FSMContext):
         )
         return
 
-    # Save the participant
-    await db.add_participants(code=test_id, user_id=user_id)
+    await send_detailed_result(message=message, test_id=test_id, user_answers=user_answers,
+                               correct_answers=correct_answers, settings=select_settings)
 
-    # Calculate score
-    score = sum(1 for i in range(correct_answer_count) if correct_answers[i] == user_answers[i])
-    percent = round(score / correct_answer_count * 100, 2)
-
-    select_user = await db.select_one_user(user_id=user_id)
-    user_mention = f"[{make_title(select_user[0]['name'])}](tg://user?id={user_id})"
-    final_text = f"""<b>{user_mention} ning natijasi
-
-> 📌Test kodi: {test_id}
-> 📋Savollar soni: {correct_answer_count} ta
-
-Natijalari:
-"""
-
-
-    await message.answer(
-        f"✅ Test {test_id} yakunlandi.\n"
-        f"To‘g‘ri javoblar soni: {score}/{correct_answer_count}\n"
-        f"Foiz: {percent}%"
-    )
-
-    print("User answers:", user_answers)
-    print("Correct answers:", correct_answers)
-    print("User answer count:", len(user_answers))
-    print("Correct answer count:", len(correct_answers))
 

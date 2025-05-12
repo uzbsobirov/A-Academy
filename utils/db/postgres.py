@@ -82,7 +82,8 @@ class Database:
         CREATE TABLE IF NOT EXISTS Participants (
         id SERIAL PRIMARY KEY,
         code BIGINT NOT NULL,
-        user_id BIGINT NOT NULL
+        user_id BIGINT NOT NULL,
+        score BIGINT
         );
         """
         await self.execute(sql, execute=True)
@@ -136,9 +137,9 @@ class Database:
         sql = "INSERT INTO test (name, answers) VALUES($1, $2) returning *"
         return await self.execute(sql, name, answers, fetchrow=True)
 
-    async def add_participants(self, code, user_id):
-        sql = "INSERT INTO Participants (code, user_id) VALUES($1, $2) returning *"
-        return await self.execute(sql, code, user_id, fetchrow=True)
+    async def add_participants(self, code, user_id, score):
+        sql = "INSERT INTO Participants (code, user_id, score) VALUES($1, $2, $3) returning *"
+        return await self.execute(sql, code, user_id, score, fetchrow=True)
 
     async def select_all_users(self):
         sql = "SELECT * FROM Users"
@@ -173,9 +174,17 @@ class Database:
         sql = "SELECT * FROM Participants WHERE code=$1 and user_id=$2"
         return await self.execute(sql, code, user_id, fetchrow=True)
 
+    async def select_participantss(self, code,):
+        sql = "SELECT * FROM Participants WHERE code=$1"
+        return await self.execute(sql, code, fetch=True)
+
     async def select_test(self, code):
         sql = "SELECT * FROM Test WHERE code=$1"
         return await self.execute(sql, code, fetchval=True)
+
+    async def select_tests(self):
+        sql = "SELECT * FROM Test"
+        return await self.execute(sql, fetch=True)
 
     async def select_answers(self, code):
         sql = "SELECT answers FROM Test WHERE code=$1"
