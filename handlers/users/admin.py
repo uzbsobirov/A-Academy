@@ -18,7 +18,16 @@ from utils.pgtoexcel import export_to_excel
 router = Router()
 
 
-@router.message(Command('allusers'), IsBotAdminFilter(ADMINS))
+async def get_admin_ids():
+    result = await db.select_all_admins()
+
+    # Extract user IDs from the result (assuming the result is a list of dicts)
+    admin_ids = [row['user_id'] for row in result]
+
+    return admin_ids
+
+
+@router.message(Command('allusers'), IsBotAdminFilter(get_admin_ids))
 async def get_all_users(message: types.Message):
     users = await db.select_all_users()
 
@@ -51,14 +60,14 @@ async def send_ad_to_users(message: types.Message, state: FSMContext):
     await state.set_state(AdminState.main)
 
 
-@router.message(Command('cleandb'), IsBotAdminFilter(ADMINS))
+@router.message(Command('cleandb'), IsBotAdminFilter(get_admin_ids))
 async def ask_are_you_sure(message: types.Message, state: FSMContext):
     msg = await message.reply("Haqiqatdan ham bazani tozalab yubormoqchimisiz?", reply_markup=are_you_sure_markup)
     await state.update_data(msg_id=msg.message_id)
     await state.set_state(AdminState.are_you_sure)
 
 
-@router.callback_query(AdminState.are_you_sure, IsBotAdminFilter(ADMINS))
+@router.callback_query(AdminState.are_you_sure, IsBotAdminFilter(get_admin_ids))
 async def clean_db(call: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
     msg_id = data.get('msg_id')
@@ -71,7 +80,7 @@ async def clean_db(call: types.CallbackQuery, state: FSMContext):
     await state.clear()
 
 
-@router.message(Command('panel'), IsBotAdminFilter(ADMINS))
+@router.message(Command('panel'), IsBotAdminFilter(get_admin_ids))
 async def admin_panel(message: types.Message, state: FSMContext):
     text = "*Admin panelga xush kelibsiz*"
 

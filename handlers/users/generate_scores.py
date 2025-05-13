@@ -76,17 +76,49 @@ async def cancel_test_id(message: types.Message, state: FSMContext):
         results = await db.select_participantss(code=int(text))
         print(results)
 
+        if not results:
+            await message.answer(f"❌ {int(text)}-sonli testga hech kim qatnashmagan yoki test mavjud emas.")
+            return
+
+            # Malumotlarni DataFrame ga o'tkazish
         df = pd.DataFrame(results, columns=["test_id", "code", "user_id", "score"])
-        df = df.sort_values(by="score", ascending=False)  # bal bo‘yicha kamayish tartibi
-        df.index = range(1, len(df) + 1)  # T/r raqamlari
 
-        table_text = tabulate(df, headers=["T/r", "Ism", "Ball", "Foiz", "Vaqt"], tablefmt="grid", showindex=True)
+        # Ism-familiyalarni bazadan olish (faraz qilamiz sizda user jadvali bor)
+        names = []
+        for user_id in df["user_id"]:
+            select_user = await db.select_one_user(user_id=user_id)
+            names.append(select_user['full_name'])
+        #     user = await db.get_user(user_id)  # bu user['full_name'] deb olish mumkin bo'lgan funksiya bo'lishi kerak
+        #     names.append(user["full_name"] if user else "Noma'lum foydalanuvchi")
 
-        await bot.send_message(
-            chat_id=IsBotAdminFilter(ADMINS),
-            text=f"📊 *{int(text)}-sonli test yakunlandi!*\n\n```{table_text}```",
-            parse_mode="Markdown"
-        )
+        df["name"] = names
+        df["percentage"] = df["score"].astype(float) / 44 * 100  # 44 - savollar soni
+        df = df.sort_values(by="score", ascending=False).reset_index(drop=True)
+
+        # Natijani tuzish
+        result_text = f"📊 <b>{int(text)}-sonli test natijalari:</b>\n\n"
+        for idx, row in df.iterrows():
+            user_link = f'<a href="tg://user?id={row["user_id"]}">{row["name"]}</a>'
+            result_text += (
+                f"{idx + 1}. {user_link} - {row['score']} ta - "
+                f"{round(row['percentage'], 2)}%\n"
+            )
+
+        await message.answer(result_text)
+        await state.clear()
+        # df = pd.DataFrame(results, columns=["test_id", "code", "user_id", "score"])
+        # df = df.sort_values(by="score", ascending=False)  # bal bo‘yicha kamayish tartibi
+        # df.index = range(1, len(df) + 1)  # T/r raqamlari
+        #
+        # table_text = tabulate(df, headers=["T/r", "Ism", "Ball", "Foiz", "Vaqt"], tablefmt="grid", showindex=True)
+        #
+        # for admin_id in ADMINS:
+        #     await bot.send_message(
+        #         chat_id=admin_id,
+        #         text=f"📊 *{int(text)}-sonli test yakunlandi!*\n\n```{table_text}```",
+        #         parse_mode="Markdown"
+        #     )
+
 
     else:
         await message.answer(text="<b>Iltimos faqat raqamlardan foydalaning</b>")

@@ -4,6 +4,8 @@ from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.enums.parse_mode import ParseMode
 
+from filters import IsBotAdminFilter
+from handlers.users.admin import get_admin_ids
 from keyboards.inline.panel import test_buttons
 from loader import db
 from states.panel import AdminState
@@ -103,7 +105,7 @@ async def right_answers(call: types.CallbackQuery, state: FSMContext):
     await state.set_state(AdminState.get_code)
 
 
-@router.message(StateFilter(AdminState.test_set))
+@router.message(StateFilter(AdminState.test_set), IsBotAdminFilter(get_admin_ids))
 async def get_test_code(message: types.Message, state: FSMContext):
     # if len(message.text) >= 4:
     text = message.text.strip()
